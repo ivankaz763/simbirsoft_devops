@@ -1,0 +1,37 @@
+---
+- hosts: web
+  tasks:
+    - name: Installs necessary packages
+      apt: pkg={{ item }} state=latest
+      with_items:
+        - python3-pip
+        - python3-dev
+        - git
+        - nginx
+        - python-setuptools
+    - name: Install pip
+      apt:
+        name: python-pip
+        update_cache: yes
+        state: present
+    - name: clone repo
+      git:
+        repo: 'https://github.com/anfederico/Flaskex'
+        dest: /flaskex
+        update: yes  # Does a git pull if the repo already exist
+    - name: Install virtualenv via pip
+      pip:
+        name: virtualenv
+        executable: pip3
+    - name: install modules in a virtualenv
+      pip:
+        requirements: /flaskex/requirements.txt
+        virtualenv: /flaskex/env
+        virtualenv_python: python2.7
+    - name: fetch application
+      git: repo=https://github.com/anfederico/Flaskex dest=app
+      notify:
+      - restart flask app
+
+
+    
